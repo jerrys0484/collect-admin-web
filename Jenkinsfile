@@ -11,7 +11,7 @@ pipeline {
             steps {
                 sh 'echo "开始构建..."'
                 sh 'ls -la'
-                sh 'node -v'
+                sh 'npm -v'
             }
         }
     }
