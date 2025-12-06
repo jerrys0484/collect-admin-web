@@ -11,7 +11,7 @@ pipeline {
             steps {
                 sh 'echo "开始构建..."'
                 sh 'ls -la'
-                sh 'npm -i'
+                sh 'npm install'
                 sh 'npm run build'
                 sh 'ls -la dist'
             }
