@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                nodejs() {
+                nodejs(nodeJSInstallationName: 'node25') {
                     sh 'echo "开始构建..."'
                     sh 'ls -la'
                     sh 'npm -v'
