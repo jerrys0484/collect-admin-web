@@ -9,11 +9,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                nodejs(nodeJSInstallationName: 'node22') {
-                    sh 'echo "开始构建..."'
-                    sh 'ls -la'
-                    sh 'npm -v'
-                }
+                sh 'echo "开始构建..."'
+                sh 'ls -la'
+                sh 'npm -i'
+                sh 'npm run build'
+                sh 'ls -la dist'
             }
         }
     }
