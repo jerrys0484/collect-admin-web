@@ -9,9 +9,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'echo "开始构建..."'
-                sh 'ls -la'
-                sh 'npm -v'
+                nodejs() {
+                    sh 'echo "开始构建..."'
+                    sh 'ls -la'
+                    sh 'npm -v'
+                }
             }
         }
     }
