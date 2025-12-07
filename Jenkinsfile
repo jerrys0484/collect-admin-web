@@ -42,8 +42,12 @@ pipeline {
                                     remoteDirectory: 'collect-admin-web',
                                     // 传输完成后在远程执行的命令
                                     execCommand: '''
+                                        set -x
+                                        echo "1111"
                                         chmod +x collect-admin-web/restart.sh
+                                        echo "22222222"
                                         sh collect-admin-web/restart.sh
+                                        echo "33333333"
                                     ''',
                                     // 可选：是否在传输前清空远程目录
                                     cleanRemote: false
