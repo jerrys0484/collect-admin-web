@@ -7,7 +7,7 @@ if [ -d "prod" ]; then
     echo "已备份: prod-$TIMESTAMP"
 fi
 # 替换生产环境
-mkdir -p prod
-tar -xzf dist.tar.gz -C prod
+tar -xzf dist.tar.gz dist
+mv dist prod
 rm -f dist.tar.gz
 echo "部署完成于 $(date)" >> deploy.log
