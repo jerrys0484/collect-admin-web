@@ -46,7 +46,7 @@ pipeline {
                                         TIMESTAMP=$(date +%Y%m%d%H%M%S)
                                         mv collect/collect-admin-web/prod "collect/collect-admin-web/prod-$TIMESTAMP"
                                         mv collect/collect-admin-web/dist collect/collect-admin-web/prod
-                                        echo "部署完成于 $(date)" >> collect-admin-web-deploy.log
+                                        echo "部署完成于 $(date)" >> collect/collect-admin-web/deploy.log
                                     ''',
                                     // 可选：是否在传输前清空远程目录
                                     cleanRemote: false
