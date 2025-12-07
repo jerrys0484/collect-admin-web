@@ -1,6 +1,9 @@
 #!/bin/bash
 
 set -e
+
+cd collect-admin-web >> deploy.log
+
 # 执行备份
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
 mv prod "prod-$TIMESTAMP"

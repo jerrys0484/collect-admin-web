@@ -42,8 +42,6 @@ pipeline {
                                     remoteDirectory: 'collect-admin-web',
                                     // 传输完成后在远程执行的命令
                                     execCommand: '''
-                                        # 切换目录
-                                        cd collect-admin-web >> test.log
                                         chmod +x restart.sh >> test.log
                                         sh restart.sh 2>&1 || exit 1
                                     ''',
