@@ -42,6 +42,7 @@ pipeline {
                                     remoteDirectory: 'collect-admin-web',
                                     // 传输完成后在远程执行的命令
                                     execCommand: '''
+                                        set -e
                                         # 目标目录
                                         TARGET_DIR="collect-admin-web/prod"
                                         # 判断目录是否存在
