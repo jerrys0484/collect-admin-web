@@ -42,17 +42,9 @@ pipeline {
                                     remoteDirectory: 'collect-admin-web',
                                     // 传输完成后在远程执行的命令
                                     execCommand: '''
-                                        set -e
-                                        # 目标目录
-                                        TARGET_DIR="collect-admin-web/prod"
-                                        # 判断目录是否存在
-                                        if [ -d "$TARGET_DIR" ]; then
-                                            # 生成时间戳
-                                            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-                                            # 执行备份（重命名）
-                                            mv "$TARGET_DIR" "${TARGET_DIR}-${TIMESTAMP}"
-                                            echo "备份完成：${TARGET_DIR}-${TIMESTAMP}"
-                                        fi
+                                        # 执行备份
+                                        TIMESTAMP=$(date +%Y%m%d%H%M%S)
+                                        mv collect-admin-web/prod "collect-admin-web/prod-$TIMESTAMP"
                                         mv collect-admin-web/dist collect-admin-web/prod
                                         echo "部署完成于 $(date)" >> collect-admin-web/deploy.log
                                     ''',
