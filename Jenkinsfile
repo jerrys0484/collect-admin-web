@@ -22,11 +22,11 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "开始构建..."'
-                sh 'npm install --legacy-peer-deps'
+                sh 'npm install --legacy-peer-deps 1>/dev/null'
                 sh 'rm -f dist.tar.gz'
-                sh 'npm run build'
+                sh 'npm run build 1>/dev/null'
                 sh 'ls -la dist'
-                sh 'tar -czf dist.tar.gz dist/'
+                sh 'tar -czf dist.tar.gz dist/*'
             }
         }
         stage('Deploy via SSH') {
