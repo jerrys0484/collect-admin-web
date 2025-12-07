@@ -10,13 +10,11 @@ pipeline {
         stage('Load Config') {
             steps {
                 configFileProvider(
-                    [configFile(fileId: 'collect-admin-web-env', targetLocation: '.env')]
+                    [configFile(fileId: 'collect-admin-web-env', targetLocation: '.env.production')]
                 ) {
                     sh '''
-                        # 移出无用配置
-                        rm -f .env.production
                         echo "配置文件已生成："
-                        cat .env
+                        cat .env.production
                     '''
                 }
             }
@@ -24,8 +22,8 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "开始构建..."'
-                sh 'ls -la'
                 sh 'rm -rf dist'
+                sh 'ls -la'
                 sh 'npm install --legacy-peer-deps'
                 sh 'npm run build'
                 sh 'ls -la dist'
