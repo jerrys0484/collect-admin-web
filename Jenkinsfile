@@ -10,11 +10,11 @@ pipeline {
         stage('Load Config') {
             steps {
                 configFileProvider(
-                    [configFile(fileId: 'collect-admin-web-env', targetLocation: '.env.production')]
+                    [configFile(fileId: 'collect-admin-web-env', targetLocation: '.env')]
                 ) {
                     sh '''
                         echo "配置文件已生成："
-                        cat .env.production
+                        cat .env
                     '''
                 }
             }
