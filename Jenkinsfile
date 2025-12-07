@@ -37,7 +37,7 @@ pipeline {
                             configName: 'Developer', // 在系统设置中配置的名称
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'dist/**',
+                                    sourceFiles: 'dist/**,restart.sh',
                                     // 远程目录（相对于系统配置中的“Remote Directory”）
                                     remoteDirectory: 'collect-admin-web',
                                     // 传输完成后在远程执行的命令
