@@ -27,6 +27,7 @@ pipeline {
                 sh 'npm run build 1>/dev/null'
                 sh 'ls -la dist'
                 sh 'tar -czf dist.tar.gz dist/*'
+                sh 'tar -tzf dist.tar.gz'
             }
         }
         stage('Deploy via SSH') {
