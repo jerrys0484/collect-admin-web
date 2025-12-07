@@ -42,11 +42,10 @@ pipeline {
                                     remoteDirectory: 'collect-admin-web',
                                     // 传输完成后在远程执行的命令
                                     execCommand: '''
-                                        # 执行备份
-                                        TIMESTAMP=$(date +%Y%m%d%H%M%S)
-                                        mv collect-admin-web/prod "collect-admin-web/prod-$TIMESTAMP"
-                                        mv collect-admin-web/dist collect-admin-web/prod
-                                        echo "部署完成于 $(date)" >> collect-admin-web/deploy.log
+                                        set -e
+                                        cd collect-admin-web
+                                        chmod +x restart.sh
+                                        sh restart.sh 2>&1 || exit 1
                                     ''',
                                     // 可选：是否在传输前清空远程目录
                                     cleanRemote: false
