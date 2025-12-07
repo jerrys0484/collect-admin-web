@@ -25,6 +25,7 @@ pipeline {
             steps {
                 sh 'echo "开始构建..."'
                 sh 'ls -la'
+                sh 'rm -rf dist'
                 sh 'npm install --legacy-peer-deps'
                 sh 'npm run build'
                 sh 'ls -la dist'
