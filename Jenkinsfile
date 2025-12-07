@@ -22,11 +22,11 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "开始构建..."'
-                sh 'rm -rf dist'
-                sh 'ls -la'
                 sh 'npm install --legacy-peer-deps'
+                sh 'rm -f dist.tar.gz'
                 sh 'npm run build'
                 sh 'ls -la dist'
+                sh 'tar -czf dist.tar.gz dist'
             }
         }
         stage('Deploy via SSH') {
@@ -38,7 +38,7 @@ pipeline {
                             verbose: true,
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'dist/**,restart.sh',
+                                    sourceFiles: 'dist.tar.gz,restart.sh',
                                     // 远程目录（相对于系统配置中的“Remote Directory”）
                                     remoteDirectory: 'collect-admin-web',
                                     // 传输完成后在远程执行的命令
