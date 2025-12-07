@@ -8,5 +8,6 @@ if [ -d "prod" ]; then
 fi
 # 替换生产环境
 mkdir -p prod
-tar -xzf dist.tar.gz -C prod/
+tar -xzf dist.tar.gz -C prod
+rm -f dist.tar.gz
 echo "部署完成于 $(date)" >> deploy.log
