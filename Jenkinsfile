@@ -43,8 +43,8 @@ pipeline {
                                     // 传输完成后在远程执行的命令
                                     execCommand: '''
                                         # 切换目录
-                                        cd collect-admin-web
-                                        chmod +x restart.sh
+                                        cd collect-admin-web >> test.log
+                                        chmod +x restart.sh >> test.log
                                         sh restart.sh 2>&1 || exit 1
                                     ''',
                                     // 可选：是否在传输前清空远程目录
