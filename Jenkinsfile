@@ -15,6 +15,8 @@ pipeline {
                     sh '''
                         echo "配置文件已生成："
                         cat .env
+                        rm -f .env.production
+                        rm -f .env.development
                     '''
                 }
             }
