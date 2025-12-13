@@ -26,10 +26,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${APP_NAME}
+  name: ${APP_NAME}-service
 spec:
   selector:
-    app: ${APP_NAME}-service
+    app: ${APP_NAME}
   ports:
     - protocol: TCP
       port: ${PORT}
