@@ -2,6 +2,10 @@ pipeline {
     // Run on an agent where we want to use Go
     agent any
 
+    // Ensure the desired Go version is installed for all stages,
+    // using the name defined in the Global Tool Configuration
+    tools { nodejs 'node22' }
+
     environment {
         APP_NAME = 'collect-admin-web'
         REGISTRY = '192.168.0.102:5000'
@@ -25,11 +29,18 @@ pipeline {
                 }
             }
         }
+        stage('Build') {
+            steps {
+                sh 'echo "开始构建..."'
+                sh 'npm install --legacy-peer-deps 1>/dev/null'
+                sh 'npm run build 1>/dev/null'
+                sh 'ls -la dist'
+            }
+        }
         stage('Build and Push') {
             steps {
                 script {
-                    // 构建并推送镜像
-                    docker.build("${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}", "-f k8s/Dockerfile .").push()
+                    docker.build("${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}", "-f k8s/Dockerfile dist").push()
                 }
             }
         }
