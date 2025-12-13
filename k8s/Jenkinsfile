@@ -29,7 +29,7 @@ pipeline {
             steps {
                 script {
                     // 构建并推送镜像
-                    docker.build("${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}", "-f k8s/Dockerfile").push()
+                    docker.build("${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}", "-f k8s/Dockerfile .").push()
                 }
             }
         }
