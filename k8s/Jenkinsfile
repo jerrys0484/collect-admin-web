@@ -40,7 +40,7 @@ pipeline {
         stage('Build and Push') {
             steps {
                 script {
-                    docker.build("${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}", "-f k8s/Dockerfile dist").push()
+                    docker.build("${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}", "-f k8s/Dockerfile .").push()
                 }
             }
         }
