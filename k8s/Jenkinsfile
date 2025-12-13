@@ -1,0 +1,54 @@
+pipeline {
+    // Run on an agent where we want to use Go
+    agent any
+
+    environment {
+        APP_NAME = 'collect-admin-web'
+        REGISTRY = '192.168.0.102:5000'
+        IMAGE_TAG = UUID.randomUUID().toString()
+        PORT = '8876'
+        ENV = "develop"
+    }
+
+    stages {
+        stage('Load Config') {
+            steps {
+                configFileProvider(
+                    [configFile(fileId: 'collect-admin-web-env', targetLocation: '.env')]
+                ) {
+                    sh '''
+                        echo "配置文件已生成："
+                        cat .env
+                        rm -f .env.production
+                        rm -f .env.development
+                    '''
+                }
+            }
+        }
+        stage('Build and Push') {
+            steps {
+                script {
+                    // 构建并推送镜像
+                    docker.build("${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}", "-f k8s/Dockerfile").push()
+                }
+            }
+        }
+        stage('Deploy to K8s') {
+            steps {
+                withKubeConfig([
+                    credentialsId: 'k8s-kubeconfig',
+                    serverUrl: 'http://192.168.0.102:8001'
+                ]) {
+                    sh '''
+                        # 替换变量并应用
+                        envsubst < k8s/deployment.yaml | kubectl apply -f - --force
+                        echo "✅ 部署完成"
+                        echo "应用名称: ${APP_NAME}"
+                        echo "应用端口: ${PORT}"
+                        echo "镜像: ${REGISTRY}/${APP_NAME}-${ENV}:${IMAGE_TAG}"
+                    '''
+                }
+            }
+        }
+    }
+}
