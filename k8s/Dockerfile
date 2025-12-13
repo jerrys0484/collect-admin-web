@@ -6,7 +6,7 @@ COPY ./k8s/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # 2. 复制前端静态文件
 # 从 'builder' 阶段复制构建产物
-COPY ./dist /usr/share/nginx/html
+COPY ./dist /usr/share/nginx/html/
 
 # 3. 暴露端口
 # 必须与 default.conf 中定义的 listen 端口一致
