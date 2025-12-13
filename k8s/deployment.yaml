@@ -21,7 +21,6 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: ${PORT}
-              name: ${APP_NAME}
 ---
 # --- Service (服务) ---
 apiVersion: v1
