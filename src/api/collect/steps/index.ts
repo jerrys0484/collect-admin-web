@@ -40,3 +40,11 @@ export function deleteItems(ids:string[]) {
         data: {ids}
     })
 }
+
+export function debugItems(data:any) {
+    return request({
+        url: '/api/v1/collect/steps/debug',
+        method: 'post',
+        data: data
+    })
+}

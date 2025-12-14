@@ -11,7 +11,7 @@
         </el-col>
         <el-col :xs="24" :md="12" :lg="6">
             <Editor v-model="response" :height="800">
-                <el-button size="small">Debug</el-button>
+                <el-button size="small" @click="onDebug(false)">Debug</el-button>
             </Editor>
         </el-col>
         <el-col :xs="24" :md="12" :lg="6">
@@ -23,7 +23,7 @@
             <el-col>
                 <Editor v-model="params" :height="390">
                     <el-button size="small" @click="dialogVisible = true">Save</el-button>
-                    <el-button type="primary" size="small" :disabled="!params || !response || !request">Send</el-button>
+                    <el-button type="primary" size="small" :disabled="!params || !response || !request" @click="onDebug(true)">Send</el-button>
                 </Editor>
             </el-col>
             <el-col style="margin-top: 20px;">
@@ -51,7 +51,7 @@
 <script lang="ts">
 import { reactive, toRefs, defineComponent,ref, unref } from 'vue';
 import Editor from '/@/components/myCodeMirror/index.vue';
-import {editItem} from "/@/api/collect/steps";
+import { editItem, debugItems } from "/@/api/collect/steps";
 import { ElMessage } from 'element-plus'
 interface RuleFormState {
   uuid: string;
@@ -109,10 +109,22 @@ export default defineComponent({
                 state.saveLoading = false;
             });
         }
+        const onDebug = (isSend: boolean) => {
+            debugItems({
+                uuid: prop.form?.uuid,
+                httpResponse: isSend ? null : state.httpResponse,
+                params: state.params,
+            }).then((res:any) => {
+                console.log(res.data);
+                state.debugResponse = res.data.debugReponse;
+                if (isSend) state.httpResponse = res.data.httpResponse;
+            });
+        }
         const activeNames = ref(['1']);
         return {
             onSubmit,
             onSave,
+            onDebug,
             activeNames,
             formRef,
             ...toRefs(state),
