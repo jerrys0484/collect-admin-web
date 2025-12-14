@@ -1,7 +1,7 @@
 <template>
-	<div class="system-edit-dic-container">
+	<div class="collect-edit-dic-container">
 		<el-dialog :title="(ruleForm.uuid ? 'Edit' : 'Add')+' Steps'" v-model="isShowDialog" width="769px">
-			<el-form :model="ruleForm" ref="formRef" :rules="rules" size="default" label-width="90px">
+			<el-form :model="ruleForm" ref="formRef" :rules="rules" size="default" label-width="90px" label-position="top">
         <el-form-item label="Name" prop="name">
           <el-input v-model="ruleForm.name" placeholder="Name" />
         </el-form-item>
@@ -9,10 +9,7 @@
           <el-input v-model="ruleForm.type" placeholder="Type" />
         </el-form-item>
         <el-form-item label="Request" prop="request">
-          <el-input v-model="ruleForm.request" type="textarea" placeholder="Request" />
-        </el-form-item>
-        <el-form-item label="Response" prop="response">
-          <el-input v-model="ruleForm.response" type="textarea" placeholder="Response" />
+          <Editor v-model="ruleForm.request" style="width: 100%;" />
         </el-form-item>
 			</el-form>
 			<template #footer>
@@ -29,6 +26,7 @@
 import { reactive, toRefs, defineComponent,ref, unref } from 'vue';
 import {ElMessage} from "element-plus";
 import {addItem, editItem, getItem} from "/@/api/collect/steps";
+import Editor from '/@/components/myCodeMirror/index.vue';
 interface RuleFormState {
   uuid: string;
   name: string;
@@ -44,11 +42,8 @@ interface DicState {
 
 export default defineComponent({
 	name: 'EditDispatchData',
-  props:{
-    sysYesNoOptions:{
-      type:Array,
-      default:()=>[]
-    }
+  components:{
+    Editor
   },
 	setup(prop,{emit}) {
     const formRef = ref<HTMLElement | null>(null);
@@ -73,8 +68,7 @@ export default defineComponent({
         getItem(row.uuid).then((res:any)=>{
           const data:RuleFormState = res.data.data
           state.ruleForm = data
-        })
-        state.ruleForm = row;
+        });
       }
 			state.isShowDialog = true;
 		};
@@ -93,25 +87,18 @@ export default defineComponent({
 		const onCancel = () => {
 			closeDialog();
 		};
+    const callback= (msg: string) => {
+      ElMessage.success(msg);
+      closeDialog();
+      emit('dataList');
+    };
 		const onSubmit = () => {
       const formWrap = unref(formRef) as any;
       if (!formWrap) return;
       formWrap.validate((valid: boolean) => {
-        if (valid) {
-          if(!state.ruleForm.uuid){
-            addItem(state.ruleForm).then(()=>{
-              ElMessage.success('Add Success');
-              closeDialog();
-              emit('dataList')
-            })
-          }else{
-            editItem(state.ruleForm).then(()=>{
-              ElMessage.success('Edit Sucess');
-              closeDialog();
-              emit('dataList')
-            })
-          }
-        }
+        if (!valid) return false;
+        if(!state.ruleForm.uuid) return addItem(state.ruleForm).then(() => callback('Add Sucess'));
+        return editItem(state.ruleForm).then(() => callback('Edit Sucess'));
       });
 		};
 		return {
