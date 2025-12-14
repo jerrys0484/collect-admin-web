@@ -52,7 +52,7 @@
         </el-table-column>
       </el-table>
       <pagination
-          v-show="tableData.total>0"
+          v-show="tableData.total > 0"
           :total="tableData.total"
           v-model:page="tableData.param.pageNum"
           v-model:limit="tableData.param.pageSize"
@@ -107,7 +107,7 @@ export default defineComponent({
           dateRange: [],
           pageNum: 1,
           pageSize: 10,
-          name:'',
+          name: '',
         },
       },
     });
