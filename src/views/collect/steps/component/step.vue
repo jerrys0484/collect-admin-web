@@ -4,14 +4,14 @@
         <el-col :xs="24" :md="12" :lg="6">
             <Editor v-model="httpResponse" :height="800">
                 <span v-show="!!httpResponse">
-                    <el-button size="small">Format</el-button>
+                    <el-button size="small" @click="httpResponse = formatJson(httpResponse)">Format</el-button>
                     <el-button size="small">Copy</el-button>
                 </span>
             </Editor>
         </el-col>
         <el-col :xs="24" :md="12" :lg="6">
             <Editor v-model="response" :height="800">
-                <el-button size="small">Debug</el-button>
+                <el-button size="small" @click="onDebug(false)">Debug</el-button>
             </Editor>
         </el-col>
         <el-col :xs="24" :md="12" :lg="6">
@@ -23,7 +23,7 @@
             <el-col>
                 <Editor v-model="params" :height="390">
                     <el-button size="small" @click="dialogVisible = true">Save</el-button>
-                    <el-button type="primary" size="small" :disabled="!params || !response || !request">Send</el-button>
+                    <el-button type="primary" size="small" :disabled="!params || !response || !request" @click="onDebug(true)" :loading="sendLoading">Send</el-button>
                 </Editor>
             </el-col>
             <el-col style="margin-top: 20px;">
@@ -51,7 +51,7 @@
 <script lang="ts">
 import { reactive, toRefs, defineComponent,ref, unref } from 'vue';
 import Editor from '/@/components/myCodeMirror/index.vue';
-import {editItem} from "/@/api/collect/steps";
+import { editItem, debugItems } from "/@/api/collect/steps";
 import { ElMessage } from 'element-plus'
 interface RuleFormState {
   uuid: string;
@@ -64,11 +64,12 @@ interface RuleFormState {
   params: string;
   dialogVisible: boolean;
   saveLoading: boolean;
+  sendLoading: boolean;
 }
 
 export default defineComponent({
     name: 'Step',
-    components: {Editor},
+    components: { Editor },
     props: {
         form: Object,
     },
@@ -85,7 +86,9 @@ export default defineComponent({
             params: '',
             dialogVisible: false,
             saveLoading: false,
+            sendLoading: false,
         });
+        const activeNames = ref(['1']);
         const onSubmit = () => {
             const formWrap = unref(formRef) as any;
             if (!formWrap) return;
@@ -109,12 +112,39 @@ export default defineComponent({
                 state.saveLoading = false;
             });
         }
-        const activeNames = ref(['1']);
+        const onDebug = (isSend: boolean) => {
+            if(!prop.form?.uuid) return false;
+            state.sendLoading = true;
+            debugItems({
+                uuid: prop.form?.uuid,
+                httpResponse: isSend ? null : state.httpResponse,
+                params: state.params,
+            }).then((res:any) => {
+                state.debugResponse = formatJson(res.data.debugResponse);
+                if (isSend) {
+                    const hr:any = JSON.parse(res.data.httpResponse);
+                    state.httpResponse = hr.Body;
+                } 
+            }).finally(() => {
+                state.sendLoading = false;
+            });
+        }
+        const formatJson = (jsonStr: string) => {
+            try {
+                const obj = JSON.parse(jsonStr);
+                return JSON.stringify(obj, null, 2);
+            } catch (e) {
+                ElMessage({message: 'Invalid JSON format',type: 'error',placement: 'top'});
+                return jsonStr;
+            }
+        }
         return {
             onSubmit,
             onSave,
+            onDebug,
             activeNames,
             formRef,
+            formatJson,
             ...toRefs(state),
         };
     },
