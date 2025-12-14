@@ -1,17 +1,12 @@
 <template>
-  <div class="system-dic-container">
+  <div class="dispatch-dic-container">
     <el-card shadow="hover">
-      <div class="system-user-search mb15">
-        <el-form :model="tableData.param" ref="queryRef" :inline="true" label-width="68px">
+      <div class="dispatch-user-search mb15">
+        <el-form :model="tableData.param" ref="queryRef" :inline="true" label-position="top">
           <el-form-item label="Name" prop="name">
-            <el-input
-                v-model="tableData.param.name"
-                placeholder="Please enter name"
-                clearable
-                size="default"
-            />
+            <el-input v-model="tableData.param.name" placeholder="Please enter name" size="default" />
           </el-form-item>
-          <el-form-item label="创建时间" prop="dateRange">
+          <el-form-item label="Create Time" prop="dateRange">
             <el-date-picker
                 v-model="tableData.param.dateRange"
                 size="default"
@@ -19,22 +14,22 @@
                 value-format="YYYY-MM-DD"
                 type="daterange"
                 range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
+                start-placeholder="Start Date"
+                end-placeholder="End Date"
             ></el-date-picker>
           </el-form-item>
-          <el-form-item>
-            <el-button size="default" type="primary" class="ml10" @click="listData">
+          <el-form-item label="Opreate">
+            <el-button size="default" type="primary" @click="listData">
               <el-icon>
                 <ele-Search />
               </el-icon>
-              Search
+              <span>Search</span>
             </el-button>
             <el-button size="default" type="success" class="ml10" @click="onOpenAdd">
               <el-icon>
                 <ele-FolderAdd />
               </el-icon>
-              Add
+              <span>Add</span>
             </el-button>
           </el-form-item>
         </el-form>
@@ -42,11 +37,12 @@
       <el-table :data="tableData.data" style="width: 100%">
         <el-table-column label="Uuid" prop="uuid" width="280" />
         <el-table-column label="Name" prop="name" />
-        <el-table-column label="Create Time" prop="createTime" width="180" />
-        <el-table-column label="Update Time" prop="updateTime" width="180" />
+        <el-table-column label="Create Time" prop="created" width="180" />
+        <el-table-column label="Update Time" prop="updated" width="180" />
         <el-table-column label="Operate" width="200">
           <template #default="scope">
-            <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">修改</el-button>
+            <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">Edit</el-button>
+            <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">Run</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -66,12 +62,16 @@
 import {toRefs,reactive,onMounted,ref,defineComponent} from 'vue';
 import Edit from '/@/views/collect/dispatch/component/edit.vue';
 import {getList} from "/@/api/collect/dispatch";
+import dayjs from 'dayjs';
 
 interface TableDataRow {
   uuid: string;
   name: string,
+  rules: string,
   createTime: number,
   updateTime: number,
+  created: string,
+  updated: string,
 }
 interface TableDataState {
   uuids: string[];
@@ -103,25 +103,24 @@ export default defineComponent({
           dateRange: [],
           pageNum: 1,
           pageSize: 10,
-          name:'',
+          name: '',
         },
       },
     });
     const listData=()=>{
-      getList(state.tableData.param).then((res:any)=>{
-        state.tableData.data = res.data.list;
+      getList(state.tableData.param).then((res:any) => {
+        const data = res.data.list;
+        data.forEach((item:TableDataRow) => {
+          item.created = dayjs.unix(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+          item.updated = dayjs.unix(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+        });
+        state.tableData.data = data;
         state.tableData.total = res.data.total;
       });
     };
-    const onOpenAdd = () => {
-      editRef.value.openDialog();
-    };
-    const onOpenEdit = (row: TableDataRow) => {
-      editRef.value.openDialog(row);
-    };
-    onMounted(() => {
-      listData();
-    });
+    const onOpenAdd = () => editRef.value.openDialog();
+    const onOpenEdit = (row: TableDataRow) => editRef.value.openDialog(row);
+    onMounted(() => listData());
     return {
       editRef,
       onOpenAdd,

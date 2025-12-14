@@ -1,8 +1,8 @@
 <template>
-  <div class="system-dic-container">
+  <div class="steps-container">
     <el-card shadow="hover">
-      <div class="system-user-search mb15">
-        <el-form :model="tableData.param" ref="queryRef" :inline="true" label-width="68px">
+      <div class="steps-user-search mb15">
+        <el-form :model="tableData.param" ref="queryRef" :inline="true" label-position="top">
           <el-form-item label="Name" prop="name">
             <el-input
                 v-model="tableData.param.name"
@@ -11,7 +11,7 @@
                 size="default"
             />
           </el-form-item>
-          <el-form-item label="创建时间" prop="dateRange">
+          <el-form-item label="Create Time" prop="dateRange">
             <el-date-picker
                 v-model="tableData.param.dateRange"
                 size="default"
@@ -19,22 +19,22 @@
                 value-format="YYYY-MM-DD"
                 type="daterange"
                 range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
+                start-placeholder="Start Date"
+                end-placeholder="End Date"
             ></el-date-picker>
           </el-form-item>
-          <el-form-item>
-            <el-button size="default" type="primary" class="ml10" @click="listData">
+          <el-form-item label="Opreate">
+            <el-button size="default" type="primary" @click="listData">
               <el-icon>
                 <ele-Search />
               </el-icon>
-              Search
+              <span>Search</span>
             </el-button>
             <el-button size="default" type="success" class="ml10" @click="onOpenAdd">
               <el-icon>
                 <ele-FolderAdd />
               </el-icon>
-              Add
+              <span>Add</span>
             </el-button>
           </el-form-item>
         </el-form>
@@ -43,16 +43,17 @@
         <el-table-column label="Uuid" prop="uuid" width="280" />
         <el-table-column label="Name" prop="name" />
         <el-table-column label="Type" prop="type" width="300" />
-        <el-table-column label="Create Time" prop="createTime" width="180" />
-        <el-table-column label="Update Time" prop="updateTime" width="180" />
+        <el-table-column label="Created" prop="created" width="180" />
+        <el-table-column label="Updated" prop="updated" width="180" />
         <el-table-column label="Operate" width="200">
           <template #default="scope">
-            <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">修改</el-button>
+            <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">Edit</el-button>
+            <el-button size="small" text type="primary" @click="onOpenRun(scope.row)">Run</el-button>
           </template>
         </el-table-column>
       </el-table>
       <pagination
-          v-show="tableData.total>0"
+          v-show="tableData.total > 0"
           :total="tableData.total"
           v-model:page="tableData.param.pageNum"
           v-model:limit="tableData.param.pageSize"
@@ -60,13 +61,16 @@
       />
     </el-card>
     <Edit ref="editRef" @dataList="listData" />
+    <Run ref="runRef" @dataList="listData" />
   </div>
 </template>
 
 <script lang="ts">
 import {toRefs,reactive,onMounted,ref,defineComponent} from 'vue';
 import Edit from '/@/views/collect/steps/component/edit.vue';
+import Run from '/@/views/collect/steps/component/run.vue';
 import {getList} from "/@/api/collect/steps";
+import dayjs from 'dayjs';
 
 interface TableDataRow {
   uuid: string;
@@ -76,6 +80,8 @@ interface TableDataRow {
   response: string,
   createTime: number,
   updateTime: number,
+  created: string,
+  updated: string,
 }
 interface TableDataState {
   uuids: string[];
@@ -94,9 +100,10 @@ interface TableDataState {
 
 export default defineComponent({
   name: 'stepsList',
-  components: { Edit },
+  components: { Edit, Run },
   setup() {
     const editRef = ref();
+    const runRef = ref();
     const state = reactive<TableDataState>({
       uuids:[],
       tableData: {
@@ -107,29 +114,31 @@ export default defineComponent({
           dateRange: [],
           pageNum: 1,
           pageSize: 10,
-          name:'',
+          name: '',
         },
       },
     });
     const listData=()=>{
-      getList(state.tableData.param).then((res:any)=>{
-        state.tableData.data = res.data.list;
+      getList(state.tableData.param).then((res:any) => {
+        const data = res.data.list;
+        data.forEach((item:TableDataRow) => {
+          item.created = dayjs.unix(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+          item.updated = dayjs.unix(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+        });
+        state.tableData.data = data;
         state.tableData.total = res.data.total;
       });
     };
-    const onOpenAdd = () => {
-      editRef.value.openDialog();
-    };
-    const onOpenEdit = (row: TableDataRow) => {
-      editRef.value.openDialog(row);
-    };
-    onMounted(() => {
-      listData();
-    });
+    const onOpenAdd = () => editRef.value.openDialog();
+    const onOpenEdit = (row: TableDataRow) => editRef.value.openDialog(row);
+    const onOpenRun = (row: TableDataRow) => runRef.value.openDialog(row);
+    onMounted(() => listData());
     return {
       editRef,
+      runRef,
       onOpenAdd,
       onOpenEdit,
+      onOpenRun,
       listData,
       ...toRefs(state),
     };
