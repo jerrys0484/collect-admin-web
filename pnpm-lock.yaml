@@ -122,6 +122,9 @@ importers:
       vue-ueditor-wrap:
         specifier: ^3.0.8
         version: 3.0.8(vue@3.5.25(typescript@5.9.3))
+      yaml:
+        specifier: ^2.8.2
+        version: 2.8.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.28
@@ -140,7 +143,7 @@ importers:
         version: 7.18.0(eslint@8.57.1)(typescript@5.9.3)
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
-        version: 5.2.4(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))
+        version: 5.2.4(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2))(vue@3.5.25(typescript@5.9.3))
       '@vue/compiler-sfc':
         specifier: ^3.4.21
         version: 3.5.25
@@ -167,13 +170,13 @@ importers:
         version: 5.9.3
       vite:
         specifier: 6.3.4
-        version: 6.3.4(@types/node@20.19.25)(sass@1.94.2)
+        version: 6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2)
       vite-plugin-cdn-import:
         specifier: ^0.3.5
         version: 0.3.5(rollup@4.53.3)
       vite-plugin-compression:
         specifier: ^0.5.1
-        version: 0.5.1(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2))
+        version: 0.5.1(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2))
       vite-plugin-vue-setup-extend-plus:
         specifier: ^0.1.0
         version: 0.1.0
@@ -1867,6 +1870,11 @@ packages:
     resolution: {integrity: sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==}
     engines: {node: '>=12'}
 
+  yaml@2.8.2:
+    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
@@ -2495,9 +2503,9 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitejs/plugin-vue@5.2.4(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2))(vue@3.5.25(typescript@5.9.3))':
+  '@vitejs/plugin-vue@5.2.4(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2))(vue@3.5.25(typescript@5.9.3))':
     dependencies:
-      vite: 6.3.4(@types/node@20.19.25)(sass@1.94.2)
+      vite: 6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2)
       vue: 3.5.25(typescript@5.9.3)
 
   '@vue/compiler-core@3.5.25':
@@ -3424,18 +3432,18 @@ snapshots:
     transitivePeerDependencies:
       - rollup
 
-  vite-plugin-compression@0.5.1(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2)):
+  vite-plugin-compression@0.5.1(vite@6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2)):
     dependencies:
       chalk: 4.1.2
       debug: 4.4.3
       fs-extra: 10.1.0
-      vite: 6.3.4(@types/node@20.19.25)(sass@1.94.2)
+      vite: 6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
   vite-plugin-vue-setup-extend-plus@0.1.0: {}
 
-  vite@6.3.4(@types/node@20.19.25)(sass@1.94.2):
+  vite@6.3.4(@types/node@20.19.25)(sass@1.94.2)(yaml@2.8.2):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
@@ -3447,6 +3455,7 @@ snapshots:
       '@types/node': 20.19.25
       fsevents: 2.3.3
       sass: 1.94.2
+      yaml: 2.8.2
 
   vue-clipboard3@2.0.0:
     dependencies:
@@ -3535,6 +3544,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   xml-name-validator@4.0.0: {}
+
+  yaml@2.8.2: {}
 
   yocto-queue@0.1.0: {}
 
