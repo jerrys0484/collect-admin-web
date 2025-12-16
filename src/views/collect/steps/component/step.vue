@@ -124,6 +124,8 @@ export default defineComponent({
         const onDebug = (isSend: boolean) => {
             if(!prop.form?.uuid) return false;
             state.sendLoading = true;
+            state.debugResponse = '';
+            if(isSend) state.httpResponse = '';
             debugItems({
                 uuid: prop.form?.uuid,
                 httpResponse: isSend ? null : state.httpResponse,
