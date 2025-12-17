@@ -1,21 +1,36 @@
 <template>
 	<div class="collect-edit-dic-container">
-		<el-dialog :title="(ruleForm.uuid ? 'Edit' : 'Add')+' Steps'" v-model="isShowDialog" width="769px">
-			<el-form :model="ruleForm" ref="formRef" :rules="rules" size="default" label-width="90px" label-position="top">
-        <el-form-item label="Name" prop="name">
-          <el-input v-model="ruleForm.name" placeholder="Name" />
-        </el-form-item>
-        <el-form-item label="Type" prop="type">
-          <el-input v-model="ruleForm.type" placeholder="Type" />
-        </el-form-item>
-        <el-form-item label="Request" prop="request">
-          <Editor v-model="ruleForm.request" style="width: 100%;" />
-        </el-form-item>
+		<el-dialog :title="(form.uuid ? 'Edit' : 'Add')+' Steps'" v-model="isShowDialog" width="600px" destroy-on-close>
+			<el-form :model="form" ref="formRef" size="default" label-width="90px" label-position="top">
+        <el-row :gutter="10">
+          <el-col :xs="24" :md="12">
+             <el-form-item label="Name" prop="name">
+              <el-input v-model="form.name" placeholder="Name" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :md="12">
+             <el-form-item label="Type" prop="type">
+              <el-input v-model="form.type" placeholder="Type" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :xs="24" :md="24">
+            <el-form-item label="Vars" prop="vars">
+              <el-col><Editor v-model="form.vars" :height="200" /></el-col>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :md="24">
+            <el-form-item label="Data" prop="data">
+              <el-col><Editor v-model="form.data" :height="200" /></el-col>
+            </el-form-item>
+          </el-col>
+        </el-row>
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="onCancel" size="default">Cancel</el-button>
-					<el-button type="primary" @click="onSubmit" size="default">{{ruleForm.uuid ? 'Edit' : 'Add'}}</el-button>
+					<el-button type="primary" @click="onSubmit" size="default">{{ form.uuid ? 'Edit' : 'Add' }}</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -27,17 +42,17 @@ import { reactive, toRefs, defineComponent,ref, unref } from 'vue';
 import {ElMessage} from "element-plus";
 import {addItem, editItem, getItem} from "/@/api/collect/steps";
 import Editor from '/@/components/myCodeMirror/index.vue';
+import commonFunction from '/@/utils/commonFunction';
 interface RuleFormState {
   uuid: string;
   name: string;
   type: string;
-  request: string;
-  response: string;
+  data: string;
+  vars: string;
 }
-interface DicState {
+interface AllState {
 	isShowDialog: boolean;
-	ruleForm: RuleFormState;
-  rules: {}
+	form: RuleFormState;
 }
 
 export default defineComponent({
@@ -45,40 +60,42 @@ export default defineComponent({
   components:{
     Editor
   },
-	setup(prop,{emit}) {
+	setup(prop, {emit}) {
+    const { toJson, toYamlOrJson } = commonFunction();
     const formRef = ref<HTMLElement | null>(null);
-		const state = reactive<DicState>({
+		const state = reactive<AllState>({
 			isShowDialog: false,
-			ruleForm: {
+			form: reactive<RuleFormState>({
         uuid: '',
         name: '',
-        type: '',
-        request: '',
-        response: '',
-			},
-      rules: {
-        name: [
-          { required: true, message: "Name can not empty", trigger: "blur" },
-        ],
-      }
+        type: 'http',
+        data: '',
+        vars: '',
+      })
 		});
 		const openDialog = (row: RuleFormState|null) => {
       resetForm();
       if (row) {
         getItem(row.uuid).then((res:any)=>{
           const data:RuleFormState = res.data.data
-          state.ruleForm = data
+          state.form = {
+            uuid: data.uuid,
+            name: data.name,
+            type: data.type,
+            data: toYamlOrJson(data.data),
+            vars: toYamlOrJson(data.vars),
+          }
         });
       }
 			state.isShowDialog = true;
 		};
-    const resetForm = ()=>{
-      state.ruleForm = {
+    const resetForm = () => {
+      state.form = {
         uuid: '',
         name: '',
         type: 'http',
-        request: '',
-        response: '',
+        data: '',
+        vars: '',
       }
     };
 		const closeDialog = () => {
@@ -97,8 +114,15 @@ export default defineComponent({
       if (!formWrap) return;
       formWrap.validate((valid: boolean) => {
         if (!valid) return false;
-        if(!state.ruleForm.uuid) return addItem(state.ruleForm).then(() => callback('Add Sucess'));
-        return editItem(state.ruleForm).then(() => callback('Edit Sucess'));
+        const formData = {
+          uuid: state.form.uuid,
+          name: state.form.name,
+          type: state.form.type,
+          data: toJson(state.form.data),
+          vars: toJson(state.form.vars),
+        }
+        if(!state.form.uuid) return addItem(formData).then(() => callback('Add Sucess'));
+        return editItem(formData).then(() => callback('Edit Sucess'));
       });
 		};
 		return {

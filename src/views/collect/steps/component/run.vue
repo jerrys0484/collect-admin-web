@@ -1,7 +1,7 @@
 <template>
   <el-drawer v-model="isShowDialog" title="Run" size="100%">
     <el-collapse expand-icon-position="right" style="padding: 0 15px;" v-model="activeNames">
-        <el-collapse-item :title="ruleForm.uuid + ' ('+ ruleForm.name +')'" name="1">
+        <el-collapse-item :title="ruleForm.uuid + ' ('+ ruleForm.name +')'" name="1" :key="ruleForm.uuid">
             <Steps :form="ruleForm" />
         </el-collapse-item>
     </el-collapse>
@@ -53,8 +53,6 @@ export default defineComponent({
             if (!formWrap) return;
             formWrap.validate((valid: boolean) => {
                 if (!valid) return false;
-                // if(!state.ruleForm.uuid) return addItem(state.ruleForm).then(() => callback('Add Sucess'));
-                // return editItem(state.ruleForm).then(() => callback('Edit Sucess'));
             });
         };
         const activeNames = ref(['1']);

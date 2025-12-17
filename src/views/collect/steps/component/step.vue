@@ -6,26 +6,29 @@
         </el-col>
         <el-col :xs="24" :md="12" :lg="6">
             <el-col>
-                <Editor v-model="params" :height="390">
+                <Editor v-model="params" :height="300">
                     <template #bottom>
                         <el-button size="small" @click="onDebug(false)" v-if="!!httpResponse" :loading="sendLoading">Debug</el-button>
                         <el-button type="primary" size="small" :disabled="!params" @click="onDebug(true)" :loading="sendLoading">Send</el-button>
                     </template>
                 </Editor>
             </el-col>
-            <el-col style="margin-top: 20px;">
-                <Editor v-model="config" :height="390">
+            <el-col style="margin-top: 12px;">
+                <Editor v-model="response" :height="300">
                     <template #bottom>
-                        <el-button size="small" @click="onSave(false)">Save</el-button>
+                        <el-button size="small" @click="onSave(false)">Edit</el-button>
                     </template>
                 </Editor>
+            </el-col>
+            <el-col style="margin-top: 12px;">
+                <Editor v-model="request" :height="176" />
             </el-col>
         </el-col>
         <el-col :xs="24" :md="12" :lg="9">
             <Editor v-model="debugResponse" :height="800" />
         </el-col>
     </el-row>
-    <el-dialog v-model="dialogVisible" title="Confirm" width="60%" transition="dialog-bounce">
+    <el-dialog v-model="dialogVisible" title="Confirm" width="1000px" transition="dialog-bounce">
         <el-row :gutter="10">
             <el-col :xs="24" :md="12">
                 <Editor v-model="request" :height="500" />
@@ -43,15 +46,12 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, defineComponent,ref, unref, watch } from 'vue';
+import { reactive, toRefs, defineComponent,ref, unref } from 'vue';
 import Editor from '/@/components/myCodeMirror/index.vue';
 import { editItem, debugItems } from "/@/api/collect/steps";
 import { ElMessage } from 'element-plus';
 import commonFunction from '/@/utils/commonFunction';
 interface RuleFormState {
-  uuid: string;
-  name: string;
-  type: string;
   request: string;
   response: string;
   httpResponse: string;
@@ -60,7 +60,6 @@ interface RuleFormState {
   dialogVisible: boolean;
   saveLoading: boolean;
   sendLoading: boolean;
-  config: string;
 }
 
 export default defineComponent({
@@ -72,23 +71,19 @@ export default defineComponent({
 	setup(prop) {
         const { toJson, toYamlOrJson, isJson } = commonFunction();
         const formRef = ref<HTMLElement | null>(null);
-        const config = toYamlOrJson(JSON.stringify({
-            request: JSON.parse(toJson(prop.form?.request)),
-            response: JSON.parse(toJson(prop.form?.response)),
+        const params = toYamlOrJson(JSON.stringify({
+            data: prop.form?.data ? JSON.parse(toJson(prop.form?.data)) : null,
+            vars: prop.form?.vars ? JSON.parse(toJson(prop.form?.vars)) : null,
         }));
         const state = reactive<RuleFormState>({
-            uuid: '',
-            name: '',
-            type: '',
-            request: '',
-            response: '',
+            request: toYamlOrJson(prop.form?.request),
+            response: toYamlOrJson(prop.form?.response),
             httpResponse: '',
             debugResponse: '',
-            params: toYamlOrJson('{"data":{"key":"value"},"vars":{"key1":"value1","key2":"value2","key3":"value3"}}'),
+            params: params,
             dialogVisible: false,
             saveLoading: false,
-            sendLoading: false,
-            config: config,
+            sendLoading: false
         });
         const activeNames = ref(['1']);
         const onSubmit = () => {
@@ -101,17 +96,12 @@ export default defineComponent({
         const onSave = (confirm: boolean) => {
             if (!confirm) {
                 state.dialogVisible = true;
-                const rr = JSON.parse(toJson(state.config));
-                state.request = toYamlOrJson(JSON.stringify(rr.request));
-                state.response = toYamlOrJson(JSON.stringify(rr.response));
                 return false;
             }
             if(!prop.form?.uuid) return false;
             state.saveLoading = true;
             return editItem({
                 uuid: prop.form?.uuid,
-                name: prop.form?.name,
-                type: prop.form?.type,
                 request: toJson(state.request),
                 response: toJson(state.response),
             }).then(() => {
@@ -143,18 +133,6 @@ export default defineComponent({
         const formatJson = (jsonStr: string) => {
             try {return JSON.stringify(JSON.parse(jsonStr), null, 2);} catch (e) {return jsonStr;}
         }
-        watch(() => state.request, (newVal) => {
-            if (!newVal) return;
-            const rr = JSON.parse(toJson(state.config));
-            rr.request = JSON.parse(toJson(newVal));
-            state.config = toYamlOrJson(JSON.stringify(rr));
-        });
-        watch(() => state.response, (newVal) => {
-            if (!newVal) return;
-            const rr = JSON.parse(toJson(state.config));
-            rr.response = JSON.parse(toJson(newVal));
-            state.config = toYamlOrJson(JSON.stringify(rr));
-        });
         return {
             onSubmit,
             onSave,
