@@ -40,7 +40,11 @@
         </el-form>
       </div>
       <el-table :data="tableData.data" style="width: 100%">
-        <el-table-column label="Uuid" prop="uuid" width="280" />
+        <el-table-column label="Uuid" prop="uuid" width="280">
+          <template #default="scope">
+            <span @click="copyText(scope.row.uuid)">{{scope.row.uuid}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="Name" prop="name" />
         <el-table-column label="Type" prop="type" width="300" />
         <el-table-column label="Created" prop="created" width="180" />
@@ -71,6 +75,7 @@ import Edit from '/@/views/collect/steps/component/edit.vue';
 import Run from '/@/views/collect/steps/component/run.vue';
 import {getList} from "/@/api/collect/steps";
 import dayjs from 'dayjs';
+import commonFunction from '/@/utils/commonFunction';
 
 interface TableDataRow {
   uuid: string;
@@ -102,6 +107,7 @@ export default defineComponent({
   name: 'stepsList',
   components: { Edit, Run },
   setup() {
+    const { copyText } = commonFunction();
     const editRef = ref();
     const runRef = ref();
     const state = reactive<TableDataState>({
@@ -140,6 +146,7 @@ export default defineComponent({
       onOpenEdit,
       onOpenRun,
       listData,
+      copyText,
       ...toRefs(state),
     };
   },

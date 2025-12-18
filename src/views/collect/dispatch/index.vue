@@ -35,14 +35,18 @@
         </el-form>
       </div>
       <el-table :data="tableData.data" style="width: 100%">
-        <el-table-column label="Uuid" prop="uuid" width="280" />
+        <el-table-column label="Uuid" prop="uuid" width="280">
+          <template #default="scope">
+            <span @click="copyText(scope.row.uuid)">{{scope.row.uuid}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="Name" prop="name" />
         <el-table-column label="Create Time" prop="created" width="180" />
         <el-table-column label="Update Time" prop="updated" width="180" />
         <el-table-column label="Operate" width="200">
           <template #default="scope">
             <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">Edit</el-button>
-            <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">Run</el-button>
+            <el-button size="small" text type="primary" @click="onOpenRun(scope.row)">Debug</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -55,23 +59,31 @@
       />
     </el-card>
     <Edit ref="editRef" @dataList="listData" />
+    <Run ref="runRef" />
   </div>
 </template>
 
 <script lang="ts">
 import {toRefs,reactive,onMounted,ref,defineComponent} from 'vue';
 import Edit from '/@/views/collect/dispatch/component/edit.vue';
+import Run from '/@/views/collect/dispatch/component/run.vue';
 import {getList} from "/@/api/collect/dispatch";
 import dayjs from 'dayjs';
+import commonFunction from '/@/utils/commonFunction';
 
 interface TableDataRow {
   uuid: string;
   name: string,
   rules: string,
+  rulesItem: RulesItem[],
   createTime: number,
   updateTime: number,
   created: string,
   updated: string,
+}
+interface RulesItem {
+  name: string;
+  steps: string[];
 }
 interface TableDataState {
   uuids: string[];
@@ -90,9 +102,11 @@ interface TableDataState {
 
 export default defineComponent({
   name: 'dispatchList',
-  components: { Edit },
+  components: { Edit, Run },
   setup() {
+    const { copyText } = commonFunction();
     const editRef = ref();
+    const runRef = ref();
     const state = reactive<TableDataState>({
       uuids:[],
       tableData: {
@@ -113,6 +127,7 @@ export default defineComponent({
         data.forEach((item:TableDataRow) => {
           item.created = dayjs.unix(item.createTime).format('YYYY-MM-DD HH:mm:ss');
           item.updated = dayjs.unix(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+          item.rulesItem = item.rules ? JSON.parse(item.rules) : [];
         });
         state.tableData.data = data;
         state.tableData.total = res.data.total;
@@ -120,12 +135,16 @@ export default defineComponent({
     };
     const onOpenAdd = () => editRef.value.openDialog();
     const onOpenEdit = (row: TableDataRow) => editRef.value.openDialog(row);
+    const onOpenRun = (row: TableDataRow) => runRef.value.openDialog(row);
     onMounted(() => listData());
     return {
       editRef,
+      runRef,
       onOpenAdd,
       onOpenEdit,
+      onOpenRun,
       listData,
+      copyText,
       ...toRefs(state),
     };
   },
