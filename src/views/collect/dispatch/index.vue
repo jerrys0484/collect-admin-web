@@ -35,12 +35,13 @@
         </el-form>
       </div>
       <el-table :data="tableData.data" style="width: 100%">
-        <el-table-column label="Uuid" prop="uuid" width="280">
+        <el-table-column label="Uuid" prop="uuid" width="290">
           <template #default="scope">
             <span @click="copyText(scope.row.uuid)">{{scope.row.uuid}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Name" prop="name" />
+        <el-table-column label="Template" prop="template" />
         <el-table-column label="Create Time" prop="created" width="180" />
         <el-table-column label="Update Time" prop="updated" width="180" />
         <el-table-column label="Operate" width="200">
@@ -74,16 +75,12 @@ import commonFunction from '/@/utils/commonFunction';
 interface TableDataRow {
   uuid: string;
   name: string,
+  template: string,
   rules: string,
-  rulesItem: RulesItem[],
   createTime: number,
   updateTime: number,
   created: string,
   updated: string,
-}
-interface RulesItem {
-  name: string;
-  steps: string[];
 }
 interface TableDataState {
   uuids: string[];
@@ -126,8 +123,7 @@ export default defineComponent({
         const data = res.data.list;
         data.forEach((item:TableDataRow) => {
           item.created = dayjs.unix(item.createTime).format('YYYY-MM-DD HH:mm:ss');
-          item.updated = dayjs.unix(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
-          item.rulesItem = item.rules ? JSON.parse(item.rules) : [];
+          item.updated = item.updateTime ? dayjs.unix(item.updateTime).format('YYYY-MM-DD HH:mm:ss') : '-';
         });
         state.tableData.data = data;
         state.tableData.total = res.data.total;

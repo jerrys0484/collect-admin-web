@@ -5,16 +5,8 @@
         <el-form-item label="Name" prop="name">
           <el-input v-model="form.name" placeholder="Name" />
         </el-form-item>
-        <el-form-item label="Type" prop="type">
-          <el-select v-model="form.type" placeholder="Type" style="width: 100%;">
-            <el-option label="HTTP" :value="1" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Way" prop="way">
-          <el-select v-model="form.way" placeholder="Way" style="width: 100%;">
-            <el-option label="Serial" :value="1" />
-            <el-option label="Weight" :value="2" />
-          </el-select>
+        <el-form-item label="Template" prop="template">
+          <el-input v-model="form.template" placeholder="Template" />
         </el-form-item>
         <el-form-item label="Rules" prop="rules">
           <Editor v-model="form.rules" placeholder="Rules" style="width: 100%;" />
@@ -39,9 +31,8 @@ import commonFunction from '/@/utils/commonFunction';
 interface RuleFormState {
   uuid: string;
   name: string;
-  type: number;
-  way: number;
   rules: string;
+  template: string;
 }
 interface DicState {
 	isShowDialog: boolean;
@@ -62,8 +53,7 @@ export default defineComponent({
 			form: {
         uuid: '',
         name: '',
-        type: 1,
-        way: 1,
+        template: '',
         rules: '',
 			},
       rules: {
@@ -78,8 +68,7 @@ export default defineComponent({
           state.form = {
             uuid: data.uuid,
             name: data.name,
-            type: data.type,
-            way: data.way,
+            template: data.template,
             rules: toYamlOrJson(data.rules),
           }
 
@@ -91,8 +80,7 @@ export default defineComponent({
       state.form = {
         uuid: '',
         name: '',
-        type: 1,
-        way: 1,
+        template: '',
         rules: '',
       }
     };
@@ -115,8 +103,7 @@ export default defineComponent({
         const formData = {
           uuid: state.form.uuid,
           name: state.form.name,
-          type: state.form.type,
-          way: state.form.way,
+          template: state.form.template,
           rules: toJson(state.form.rules),
         }
         if(!state.form.uuid) return addItem(formData).then(() => callback('Add Sucess'));

@@ -1,27 +1,21 @@
 <template>
 	<div class="collect-edit-dic-container">
-		<el-dialog :title="(form.uuid ? 'Edit' : 'Add')+' Steps'" v-model="isShowDialog" width="600px" destroy-on-close>
-			<el-form :model="form" ref="formRef" size="default" label-width="90px" label-position="top">
-        <el-row :gutter="10">
-          <el-col :xs="24" :md="12">
-             <el-form-item label="Name" prop="name">
-              <el-input v-model="form.name" placeholder="Name" />
-            </el-form-item>
-          </el-col>
-          <el-col :xs="24" :md="12">
-             <el-form-item label="Type" prop="type">
-              <el-input v-model="form.type" placeholder="Type" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="Template" prop="template">
-          <el-input v-model="form.template" placeholder="Template" />
+		<el-dialog :title="(form.uuid ? 'Edit' : 'Add')+' Template'" v-model="isShowDialog" width="769px" destroy-on-close>
+			<el-form :model="form" ref="formRef" :rules="rules" size="default" label-width="90px" label-position="top">
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="form.name" placeholder="Name" />
+        </el-form-item>
+        <el-form-item label="Data" prop="data">
+          <el-col><Editor v-model="form.data" placeholder="Data" /></el-col>
+        </el-form-item>
+        <el-form-item label="Vars" prop="vars">
+          <el-col><Editor v-model="form.vars" placeholder="Vars" /></el-col>
         </el-form-item>
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="onCancel" size="default">Cancel</el-button>
-					<el-button type="primary" @click="onSubmit" size="default">{{ form.uuid ? 'Edit' : 'Add' }}</el-button>
+					<el-button type="primary" @click="onSubmit" size="default">{{form.uuid ? 'Edit' : 'Add'}}</el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -31,54 +25,62 @@
 <script lang="ts">
 import { reactive, toRefs, defineComponent,ref, unref } from 'vue';
 import {ElMessage} from "element-plus";
-import {addItem, editItem, getItem} from "/@/api/collect/steps";
-// import commonFunction from '/@/utils/commonFunction';
+import {addItem, editItem, getItem} from "/@/api/collect/template";
+import Editor from '/@/components/myCodeMirror/index.vue';
+import commonFunction from '/@/utils/commonFunction';
 interface RuleFormState {
   uuid: string;
   name: string;
-  type: string;
-  template: string;
+  vars: string;
+  data: string;
 }
-interface AllState {
+interface DicState {
 	isShowDialog: boolean;
 	form: RuleFormState;
+  rules: {}
 }
 
 export default defineComponent({
-	name: 'EditDispatchData',
-	setup(prop, {emit}) {
-    // const { toJson, toYamlOrJson } = commonFunction();
+	name: 'EditTemplateData',
+  components:{
+    Editor
+  },
+	setup(_, {emit}) {
+    const { toJson, toYamlOrJson } = commonFunction();
     const formRef = ref<HTMLElement | null>(null);
-		const state = reactive<AllState>({
+		const state = reactive<DicState>({
 			isShowDialog: false,
-			form: reactive<RuleFormState>({
+			form: {
         uuid: '',
         name: '',
-        type: 'http',
-        template: '',
-      })
+        vars: '',
+        data: '',
+			},
+      rules: {
+        name: [{ required: true, message: "Name can not empty" }],
+      }
 		});
 		const openDialog = (row: RuleFormState|null) => {
       resetForm();
       if (row) {
         getItem(row.uuid).then((res:any)=>{
-          const data:RuleFormState = res.data.data
+          const data:RuleFormState = res.data.data;
           state.form = {
             uuid: data.uuid,
             name: data.name,
-            type: data.type,
-            template: data.template,
+            vars: data.vars ? toYamlOrJson(data.vars) : '',
+            data: data.data ? toYamlOrJson(data.data) : '',
           }
         });
       }
 			state.isShowDialog = true;
 		};
-    const resetForm = () => {
+    const resetForm = ()=>{
       state.form = {
         uuid: '',
         name: '',
-        type: 'http',
-        template: '',
+        vars: '',
+        data: '',
       }
     };
 		const closeDialog = () => {
@@ -100,7 +102,8 @@ export default defineComponent({
         const formData = {
           uuid: state.form.uuid,
           name: state.form.name,
-          type: state.form.type,
+          vars: state.form.vars ? toJson(state.form.vars) : null,
+          data: state.form.data ? toJson(state.form.data) : null,
         }
         if(!state.form.uuid) return addItem(formData).then(() => callback('Add Sucess'));
         return editItem(formData).then(() => callback('Edit Sucess'));

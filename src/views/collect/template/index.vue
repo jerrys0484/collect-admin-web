@@ -1,15 +1,10 @@
 <template>
-  <div class="steps-container">
+  <div class="template-dic-container">
     <el-card shadow="hover">
-      <div class="steps-user-search mb15">
+      <div class="template-user-search mb15">
         <el-form :model="tableData.param" ref="queryRef" :inline="true" label-position="top">
           <el-form-item label="Name" prop="name">
-            <el-input
-                v-model="tableData.param.name"
-                placeholder="Please enter name"
-                clearable
-                size="default"
-            />
+            <el-input v-model="tableData.param.name" placeholder="Please enter name" size="default" />
           </el-form-item>
           <el-form-item label="Create Time" prop="dateRange">
             <el-date-picker
@@ -46,19 +41,16 @@
           </template>
         </el-table-column>
         <el-table-column label="Name" prop="name" />
-        <el-table-column label="Type" prop="type" width="300" />
-        <el-table-column label="Template" prop="template" />
-        <el-table-column label="Created" prop="created" width="180" />
-        <el-table-column label="Updated" prop="updated" width="180" />
+        <el-table-column label="Create Time" prop="created" width="180" />
+        <el-table-column label="Update Time" prop="updated" width="180" />
         <el-table-column label="Operate" width="200">
           <template #default="scope">
             <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">Edit</el-button>
-            <el-button size="small" text type="primary" @click="onOpenRun(scope.row)">Run</el-button>
           </template>
         </el-table-column>
       </el-table>
       <pagination
-          v-show="tableData.total > 0"
+          v-show="tableData.total>0"
           :total="tableData.total"
           v-model:page="tableData.param.pageNum"
           v-model:limit="tableData.param.pageSize"
@@ -66,25 +58,21 @@
       />
     </el-card>
     <Edit ref="editRef" @dataList="listData" />
-    <Run ref="runRef" @dataList="listData" />
   </div>
 </template>
 
 <script lang="ts">
 import {toRefs,reactive,onMounted,ref,defineComponent} from 'vue';
-import Edit from '/@/views/collect/steps/component/edit.vue';
-import Run from '/@/views/collect/steps/component/run.vue';
-import {getList} from "/@/api/collect/steps";
+import Edit from '/@/views/collect/template/component/edit.vue';
+import {getList} from "/@/api/collect/template";
 import dayjs from 'dayjs';
 import commonFunction from '/@/utils/commonFunction';
 
 interface TableDataRow {
   uuid: string;
   name: string,
-  type: string,
-  template: string,
-  request: string,
-  response: string,
+  vars: string,
+  data: string,
   createTime: number,
   updateTime: number,
   created: string,
@@ -106,8 +94,8 @@ interface TableDataState {
 }
 
 export default defineComponent({
-  name: 'stepsList',
-  components: { Edit, Run },
+  name: 'templateList',
+  components: { Edit },
   setup() {
     const { copyText } = commonFunction();
     const editRef = ref();
