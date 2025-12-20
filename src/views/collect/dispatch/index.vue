@@ -41,13 +41,13 @@
           </template>
         </el-table-column>
         <el-table-column label="Name" prop="name" />
-        <el-table-column label="Template" prop="template" />
+        <el-table-column label="Template" prop="template"  width="290" />
         <el-table-column label="Create Time" prop="created" width="180" />
         <el-table-column label="Update Time" prop="updated" width="180" />
         <el-table-column label="Operate" width="200">
           <template #default="scope">
             <el-button size="small" text type="primary" @click="onOpenEdit(scope.row)">Edit</el-button>
-            <el-button size="small" text type="primary" @click="onOpenRun(scope.row)">Debug</el-button>
+            <el-button size="small" text type="primary" @click="onOpenRun(scope.row)">Run</el-button>
           </template>
         </el-table-column>
       </el-table>

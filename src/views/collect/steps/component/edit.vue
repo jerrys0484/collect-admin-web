@@ -101,6 +101,7 @@ export default defineComponent({
           uuid: state.form.uuid,
           name: state.form.name,
           type: state.form.type,
+          template: state.form.template,
         }
         if(!state.form.uuid) return addItem(formData).then(() => callback('Add Sucess'));
         return editItem(formData).then(() => callback('Edit Sucess'));

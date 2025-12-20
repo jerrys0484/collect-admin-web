@@ -46,8 +46,8 @@
           </template>
         </el-table-column>
         <el-table-column label="Name" prop="name" />
-        <el-table-column label="Type" prop="type" width="300" />
-        <el-table-column label="Template" prop="template" />
+        <el-table-column label="Type" prop="type" />
+        <el-table-column label="Template" prop="template" width="290" />
         <el-table-column label="Created" prop="created" width="180" />
         <el-table-column label="Updated" prop="updated" width="180" />
         <el-table-column label="Operate" width="200">

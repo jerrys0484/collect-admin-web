@@ -6,7 +6,7 @@
         </el-col>
         <el-col :xs="24" :md="12" :lg="6">
             <el-col>
-                <Editor v-model="params" :height="300">
+                <Editor v-model="paramsValue" :height="300">
                     <template #bottom>
                         <el-button size="small" @click="onDebug(false)" v-if="!!httpResponse" :loading="sendLoading">Debug</el-button>
                         <el-button type="primary" size="small" :disabled="!params" @click="onDebug(true)" :loading="sendLoading">Send</el-button>
@@ -46,9 +46,9 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, defineComponent,ref, unref } from 'vue';
+import { reactive, toRefs, defineComponent,ref, unref, watch } from 'vue';
 import Editor from '/@/components/myCodeMirror/index.vue';
-import { editItem, debugItems } from "/@/api/collect/steps";
+import { editItem, debugItems, getItem } from "/@/api/collect/steps";
 import { ElMessage } from 'element-plus';
 import commonFunction from '/@/utils/commonFunction';
 interface RuleFormState {
@@ -56,7 +56,7 @@ interface RuleFormState {
   response: string;
   httpResponse: string;
   debugResponse: string;
-  params: string;
+  paramsValue: string;
   dialogVisible: boolean;
   saveLoading: boolean;
   sendLoading: boolean;
@@ -66,26 +66,34 @@ export default defineComponent({
     name: 'Step',
     components: { Editor },
     props: {
-        form: Object,
+        uuid: String,
+        params: String,
+        index: {
+            type: Number,
+            default: 0,
+        },
     },
-	setup(prop) {
+	setup(prop, {emit}) {
         const { toJson, toYamlOrJson, isJson } = commonFunction();
         const formRef = ref<HTMLElement | null>(null);
-        const params = toYamlOrJson(JSON.stringify({
-            data: prop.form?.data ? JSON.parse(toJson(prop.form?.data)) : null,
-            vars: prop.form?.vars ? JSON.parse(toJson(prop.form?.vars)) : null,
-        }));
         const state = reactive<RuleFormState>({
-            request: toYamlOrJson(prop.form?.request),
-            response: toYamlOrJson(prop.form?.response),
+            request: '',
+            response: '',
             httpResponse: '',
             debugResponse: '',
-            params: params,
+            paramsValue: prop.params || '',
             dialogVisible: false,
             saveLoading: false,
             sendLoading: false
         });
-        const activeNames = ref(['1']);
+        if(prop.uuid) {
+            getItem(prop.uuid).then((res:any) => {
+                const data:any = res.data.data;
+                state.request = data.request ? toYamlOrJson(data.request) : '';
+                state.response = data.response ? toYamlOrJson(data.response) : '';
+            });
+        }
+        watch(() => prop.params, (val) => state.paramsValue = val || '');
         const onSubmit = () => {
             const formWrap = unref(formRef) as any;
             if (!formWrap) return;
@@ -98,10 +106,10 @@ export default defineComponent({
                 state.dialogVisible = true;
                 return false;
             }
-            if(!prop.form?.uuid) return false;
+            if(!prop.uuid) return false;
             state.saveLoading = true;
             return editItem({
-                uuid: prop.form?.uuid,
+                uuid: prop.uuid,
                 request: toJson(state.request),
                 response: toJson(state.response),
             }).then(() => {
@@ -112,21 +120,22 @@ export default defineComponent({
             });
         }
         const onDebug = (isSend: boolean) => {
-            if(!prop.form?.uuid) return false;
+            if(!prop.uuid) return false;
             state.sendLoading = true;
             state.debugResponse = '';
             if(isSend) state.httpResponse = '';
             debugItems({
-                uuid: prop.form?.uuid,
+                uuid: prop.uuid,
                 group: 'debug',
                 httpResponse: isSend ? null : state.httpResponse,
-                params: toJson(state.params),
+                params: toJson(state.paramsValue),
             }).then((res:any) => {
                 state.debugResponse = formatJson(res.data.debugResponse ? res.data.debugResponse : '{"error":"response is empty"}');
+                if (res.data.debugResponse) emit('updateNextParams', res.data.debugResponse, prop.index + 1);
                 if (isSend) {
                     const hr:any = isJson(res.data.httpResponse) ? JSON.parse(res.data.httpResponse) : {Body: res.data.httpResponse};
                     state.httpResponse = hr.Body;
-                } 
+                }
             }).finally(() => {
                 state.sendLoading = false;
             });
@@ -138,7 +147,6 @@ export default defineComponent({
             onSubmit,
             onSave,
             onDebug,
-            activeNames,
             formRef,
             formatJson,
             ...toRefs(state),
